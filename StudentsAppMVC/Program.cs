@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using static StudentsAppMVC.Data.MvcStudentContext;
+using StudentsAppMVC.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-
 builder.Services.AddDbContext<MvcStudentsContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("StudentsDBConnectionString")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StudentsDBConnectionString")));
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

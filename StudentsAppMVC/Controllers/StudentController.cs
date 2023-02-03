@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StudentsAppMVC.Data;
 using StudentsAppMVC.Models;
-using static StudentsAppMVC.Data.MvcStudentContext;
+
 
 namespace StudentsAppMVC.Controllers
 {
@@ -21,8 +23,6 @@ namespace StudentsAppMVC.Controllers
             _dbContext = dbContext;
         }
 
-
-
         // GET: StudentController
         public ActionResult Index()
         {
@@ -32,14 +32,15 @@ namespace StudentsAppMVC.Controllers
         // GET: StudentController/Details/5
         public ActionResult Details(int id)
         {
-            var specificStudent = students.FirstOrDefault(x => x.StudentId == id);
-            return View(specificStudent);   
+            var specificStudent = _dbContext.Students.FirstOrDefault(x => x.StudentId == id);
+            return View(specificStudent);
+
         }
 
         // GET: StudentController/Create
         public ActionResult Create()
         {
-            return View();
+            return View(new StudentModel());
         }
 
         // POST: StudentController/Create
@@ -52,50 +53,56 @@ namespace StudentsAppMVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
         // GET: StudentController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var studentToBeEdited = _dbContext.Students.FirstOrDefault(x => x.StudentId == id);
+            return View(studentToBeEdited);
         }
 
         // POST: StudentController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, StudentModel studentModel)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var studentToBeEdited = _dbContext.Students.FirstOrDefault(x => x.StudentId == id);
+
+            studentToBeEdited.Name = studentModel.Name;
+            studentToBeEdited.LastName = studentModel.LastName;
+            studentToBeEdited.Age = studentModel.Age;
+            studentToBeEdited.Email = studentModel.Email;
+
+            _dbContext.Students.Update(studentToBeEdited);
+            _dbContext.SaveChanges();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: StudentController/Delete/5
         public ActionResult Delete(int id)
         {
-            var studentToBeDeleted = students.FirstOrDefault(x => x.StudentId == id);
+            var studentToBeDeleted = _dbContext.Students.FirstOrDefault(x => x.StudentId == id);
             return View(studentToBeDeleted);
+
         }
 
         // POST: StudentController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-
         public ActionResult Delete(int id, StudentModel studentModel)
         {
-            var studentToBeDeleted = students.FirstOrDefault(x => x.StudentId == id);
-            students.Remove(studentToBeDeleted);
+            var studentToBeDeleted = _dbContext.Students.FirstOrDefault(x => x.StudentId == id);
+            _dbContext.Students.Remove(studentToBeDeleted);
+            _dbContext.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
 
         public ActionResult ChangeActiveStatus(int id)
         {
-            var specificStudent = students.FirstOrDefault(x => x.StudentId == id);
+            var specificStudent = _dbContext.Students.FirstOrDefault(x => x.StudentId == id);
             specificStudent.IsActive = !specificStudent.IsActive;
             return RedirectToAction("Details", "Student", new { id = specificStudent.StudentId });
         }
+
     }
 }
