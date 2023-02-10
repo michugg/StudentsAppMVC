@@ -101,6 +101,7 @@ namespace StudentsAppMVC.Controllers
         {
             var specificStudent = _dbContext.Students.FirstOrDefault(x => x.StudentId == id);
             specificStudent.IsActive = !specificStudent.IsActive;
+            _dbContext.SaveChanges();
             return RedirectToAction("Details", "Student", new { id = specificStudent.StudentId });
         }
 
